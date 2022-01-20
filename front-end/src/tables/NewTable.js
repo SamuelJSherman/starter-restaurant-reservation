@@ -1,49 +1,29 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert"
-import { createTable } from "../utils/api";
 
-/**
- * A page that allows the user to create a new table.
- */
-export default function NewTable({ loadDashboard }) {
+export default function NewTable() {
 	const history = useHistory();
 
 	const [error, setError] = useState(null);
 	const [formData, setFormData] = useState({
 		// initial (default) data
 		table_name: "",
-		capacity: "",
+		capacity: 1,
 	});
 
-	/**
-	 * Whenever a user makes a change to the form, update the state.
-	 */
 	function handleChange({ target }) {
-		setFormData({ ...formData, [target.name]: target.name === "capacity" ? Number(target.value) : target.value });
+		setFormData({ ...formData, [target.name]: target.value });
 	}
 
-	/**
-	 * Whenever a user submits the form, validate and make the API call.
-	 */
 	function handleSubmit(event) {
 		event.preventDefault();
 
-		const abortController = new AbortController();
-
 		if(validateFields()) {
-			createTable(formData, abortController.signal)
-				.then(loadDashboard)
-				.then(() => history.push(`/dashboard`))
-				.catch(setError);
+			history.push(`/dashboard`);
 		}
-
-		return () => abortController.abort();
 	}
 
-	/**
-	 * Makes sure all fields are filled and are filled correctly.
-	 */
 	function validateFields() {
 		let foundError = null;
 
@@ -56,39 +36,37 @@ export default function NewTable({ loadDashboard }) {
 
 		setError(foundError);
 
-		return foundError === null;
+		return foundError !== null;
 	}
 
 	return (
 		<form>
 			<ErrorAlert error={error} />
 
-			<label className="form-label" htmlFor="table_name">Table Name:&nbsp;</label>
+			<label htmlFor="table_name">Table Name:&nbsp;</label>
 			<input 
-				className="form-control"
 				name="table_name"
 				id="table_name"
 				type="text"
-				minLength={2}
+				minLength="2"
 				onChange={handleChange}
 				value={formData.table_name}
 				required
 			/>
 
-			<label className="form-label" htmlFor="capacity">Capacity:&nbsp;</label>
+			<label htmlFor="capacity">Capacity:&nbsp;</label>
 			<input 
-				className="form-control"
 				name="capacity"
 				id="capacity"
 				type="number"
-				min={1}
+				min="1"
 				onChange={handleChange}
 				value={formData.capacity}
 				required
 			/>
 
-			<button className="btn btn-primary m-1" type="submit" onClick={handleSubmit}>Submit</button>
-			<button className="btn btn-danger m-1" type="button" onClick={history.goBack}>Cancel</button>
+			<button type="submit" onClick={handleSubmit}>Submit</button>
+			<button type="button" onClick={history.goBack}>Cancel</button>
 		</form>
 	);
 }
