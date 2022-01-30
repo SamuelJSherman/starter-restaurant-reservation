@@ -6,7 +6,7 @@ exports.up = function(knex) {
 		table.integer("capacity").notNullable();
 		table.string("status").notNullable();
 		
-		// let's make a foreign key here:
+		//foreign key here:
 		table.integer("reservation_id").unsigned();
 		table.foreign("reservation_id")
 			.references("reservation_id")
