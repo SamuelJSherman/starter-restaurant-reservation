@@ -55,35 +55,34 @@ export async function listReservations(params, signal) {
       url.searchParams.append(key, value.toString())
     );
   }
-  return await fetchJson(url, { headers, signal }, []);
+
+  return await fetchJson(url, { headers, signal, method: "GET" }, []);
 }
+
 export async function createReservation(reservation, signal) {
   const url = `${API_BASE_URL}/reservations`;
   const body = JSON.stringify({ data: reservation });
   return await fetchJson(url, { headers, signal, method: "POST", body }, []);
 }
-
 export async function editReservation(reservation_id, reservation, signal) {
   const url = `${API_BASE_URL}/reservations/${reservation_id}`;
-
   const body = JSON.stringify({ data: reservation });
-
   return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
-
 export async function updateReservationStatus(reservation_id, status, signal) {
   const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
 
   const body = JSON.stringify({ data: { status: status } });
 
-  return await fetchJson(url, { headers, signal, method: "PUT", body });
+  return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
 
 export async function listTables(signal) {
   const url = `${API_BASE_URL}/tables`;
 
-  return await fetchJson(url, { headers, signal }, []);
+  return await fetchJson(url, { headers, signal, method: "GET" }, []);
 }
+
 export async function createTable(table, signal) {
   const url = `${API_BASE_URL}/tables`;
   const body = JSON.stringify({ data: table });
@@ -94,7 +93,7 @@ export async function seatTable(reservation_id, table_id, signal) {
 
   const body = JSON.stringify({ data: { reservation_id: reservation_id } });
 
-  return await fetchJson(url, { headers, signal, method: "PUT", body });
+  return await fetchJson(url, { headers, signal, method: "PUT", body }, []);
 }
 
 export async function finishTable(table_id, signal) {
@@ -102,5 +101,5 @@ export async function finishTable(table_id, signal) {
 
   const body = JSON.stringify({ data: { table_id: table_id } });
 
-  return await fetchJson(url, { headers, signal, method: "DELETE", body });
+  return await fetchJson(url, { headers, signal, method: "DELETE", body }, []);
 }

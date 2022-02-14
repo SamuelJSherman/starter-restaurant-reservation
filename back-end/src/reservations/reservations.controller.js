@@ -9,10 +9,16 @@ async function list(req, res) {
   const response = await service.list(date, mobile_number);
   res.json({ data: response });
 }
-function validateBody(req, res, next) {
+
+function validateData(req, res, next) {
   if (!req.body.data) {
     return next({ status: 400, message: "Body must include a data object" });
   }
+
+  next();
+}
+
+function validateBody(req, res, next) {
   const requiredFields = [
     "first_name",
     "last_name",
@@ -21,6 +27,7 @@ function validateBody(req, res, next) {
     "reservation_time",
     "people",
   ];
+
   for (const field of requiredFields) {
     if (!req.body.data.hasOwnProperty(field) || req.body.data[field] === "") {
       return next({ status: 400, message: `Field required: '${field}'` });
@@ -45,8 +52,17 @@ function validateBody(req, res, next) {
   if (req.body.data.people < 1) {
     return next({ status: 400, message: "'people' field must be at least 1" });
   }
+
+  if (req.body.data.status && req.body.data.status !== "booked") {
+    return next({
+      status: 400,
+      message: `'status' field cannot be ${req.body.data.status}`,
+    });
+  }
+
   next();
 }
+
 function validateDate(req, res, next) {
   const reserveDate = new Date(
     `${req.body.data.reservation_date}T${req.body.data.reservation_time}:00.000`
@@ -100,13 +116,14 @@ async function create(req, res) {
   const response = await service.create(req.body.data);
   res.status(201).json({ data: response[0] });
 }
-
 async function validateReservationId(req, res, next) {
   const { reservation_id } = req.params;
   const reservation = await service.read(Number(reservation_id));
-
   if (!reservation) {
-    return next({ status: 400, message: "given reservation does not exist" });
+    return next({
+      status: 404,
+      message: `reservation id ${reservation_id} does not exist`,
+    });
   }
   res.locals.reservation = reservation;
   next();
@@ -115,16 +132,36 @@ async function validateUpdateBody(req, res, next) {
   if (!req.body.data.status) {
     return next({ status: 400, message: "body must include a status field" });
   }
+
+  if (
+    req.body.data.status !== "booked" &&
+    req.body.data.status !== "seated" &&
+    req.body.data.status !== "finished" &&
+    req.body.data.status !== "cancelled"
+  ) {
+    return next({
+      status: 400,
+      message: `'status' field cannot be ${req.body.data.status}`,
+    });
+  }
+
+  if (res.locals.reservation.status === "finished") {
+    return next({
+      status: 400,
+      message: `a finished reservation cannot be updated`,
+    });
+  }
+
   next();
 }
 
 async function update(req, res) {
-  const response = await service.update(
+  await service.update(
     res.locals.reservation.reservation_id,
     req.body.data.status
   );
 
-  res.status(200).json({ data: response });
+  res.status(200).json({ data: { status: req.body.data.status } });
 }
 
 async function edit(req, res) {
@@ -132,22 +169,32 @@ async function edit(req, res) {
     res.locals.reservation.reservation_id,
     req.body.data
   );
-
   res.status(200).json({ data: response });
+}
+async function read(req, res) {
+  res.status(200).json({ data: res.locals.reservation });
 }
 
 module.exports = {
   list: asyncErrorBoundary(list),
-  create: [validateBody, validateDate, asyncErrorBoundary(create)],
+  create: [
+    validateData,
+    validateBody,
+    validateDate,
+    asyncErrorBoundary(create),
+  ],
   update: [
+    validateData,
     validateReservationId,
     validateUpdateBody,
     asyncErrorBoundary(update),
   ],
   edit: [
+    validateData,
     validateReservationId,
     validateBody,
     validateDate,
     asyncErrorBoundary(edit),
   ],
+  read: [validateReservationId, asyncErrorBoundary(read)],
 };
