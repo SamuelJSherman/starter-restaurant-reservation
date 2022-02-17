@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { createReservation, editReservation } from "../utils/api";
+import {
+  createReservation,
+  editReservation,
+  listReservations,
+} from "../utils/api";
 
-export default function NewReservation({ loadDashboard, edit, reservations }) {
+export default function NewReservation({ loadDashboard, edit }) {
   const history = useHistory();
   const { reservation_id } = useParams();
 
+  const [reservationsError, setReservationsError] = useState(null);
   const [errors, setErrors] = useState([]);
   const [apiError, setApiError] = useState(null);
   const [formData, setFormData] = useState({
@@ -19,14 +24,24 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
     people: "",
   });
 
+  /**
+   * Make an API call to get all reservations if we are editing, filling in the form.
+   */
   useEffect(() => {
     if (edit) {
-      if (!reservations || !reservation_id) return null;
+      if (!reservation_id) return null;
 
-      const foundReservation = reservations.find(
-        (reservation) => reservation.reservation_id === Number(reservation_id)
-      );
+      loadReservations()
+        .then((response) =>
+          response.find(
+            (reservation) =>
+              reservation.reservation_id === Number(reservation_id)
+          )
+        )
+        .then(fillFields);
+    }
 
+    function fillFields(foundReservation) {
       if (!foundReservation || foundReservation.status !== "booked") {
         return <p>Only booked reservations can be edited.</p>;
       }
@@ -35,7 +50,7 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
       const dateString = `${date.getFullYear()}-${(
         "0" +
         (date.getMonth() + 1)
-      ).slice(-2)}-${date.getDate()}`;
+      ).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;
 
       setFormData({
         first_name: foundReservation.first_name,
@@ -46,8 +61,18 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         people: foundReservation.people,
       });
     }
-  }, [edit, reservation_id, reservations]);
 
+    async function loadReservations() {
+      const abortController = new AbortController();
+      return await listReservations(null, abortController.signal).catch(
+        setReservationsError
+      );
+    }
+  }, [edit, reservation_id]);
+
+  /**
+   * Whenever a user makes a change to the form, update the state.
+   */
   function handleChange({ target }) {
     setFormData({
       ...formData,
@@ -55,16 +80,23 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         target.name === "people" ? Number(target.value) : target.value,
     });
   }
+
+  /**
+   * Whenever a user submits the form, validate and make the API call.
+   */
   function handleSubmit(event) {
     event.preventDefault();
     const abortController = new AbortController();
-    const foundErrors = [];
 
+    const foundErrors = [];
+    console.log(edit);
     if (validateFields(foundErrors) && validateDate(foundErrors)) {
       if (edit) {
         editReservation(reservation_id, formData, abortController.signal)
           .then(loadDashboard)
-          .then(() => history.goBack())
+          .then(() =>
+            history.push(`/dashboard?date=${formData.reservation_date}`)
+          )
           .catch(setApiError);
       } else {
         createReservation(formData, abortController.signal)
@@ -77,8 +109,13 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
     }
 
     setErrors(foundErrors);
+
     return () => abortController.abort();
   }
+
+  /**
+   * Make sure all fields exist and are filled in correctly.
+   */
   function validateFields(foundErrors) {
     for (const field in formData) {
       if (formData[field] === "") {
@@ -87,24 +124,32 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         });
       }
     }
+
     return foundErrors.length === 0;
   }
+
+  /**
+   * Make sure the date and time of the reservation works with the restaurant's schedule.
+   */
   function validateDate(foundErrors) {
     const reserveDate = new Date(
       `${formData.reservation_date}T${formData.reservation_time}:00.000`
     );
     const todaysDate = new Date();
+
     if (reserveDate.getDay() === 2) {
       foundErrors.push({
         message:
           "Reservation cannot be made: Restaurant is closed on Tuesdays.",
       });
     }
+
     if (reserveDate < todaysDate) {
       foundErrors.push({
         message: "Reservation cannot be made: Date is in the past.",
       });
     }
+
     if (
       reserveDate.getHours() < 10 ||
       (reserveDate.getHours() === 10 && reserveDate.getMinutes() < 30)
@@ -130,17 +175,25 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
           "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM).",
       });
     }
+
     return foundErrors.length === 0;
   }
+
   const errorsJSX = () => {
     return errors.map((error, idx) => <ErrorAlert key={idx} error={error} />);
   };
+
   return (
     <form>
       {errorsJSX()}
       <ErrorAlert error={apiError} />
-      <label htmlFor="first_name">First Name:&nbsp;</label>
+      <ErrorAlert error={reservationsError} />
+
+      <label className="form-label" htmlFor="first_name">
+        First Name:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="first_name"
         id="first_name"
         type="text"
@@ -148,8 +201,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.first_name}
         required
       />
-      <label htmlFor="last_name">Last Name:&nbsp;</label>
+
+      <label className="form-label" htmlFor="last_name">
+        Last Name:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="last_name"
         id="last_name"
         type="text"
@@ -157,8 +214,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.last_name}
         required
       />
-      <label htmlFor="mobile_number">Mobile Number:&nbsp;</label>
+
+      <label className="form-label" htmlFor="mobile_number">
+        Mobile Number:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="mobile_number"
         id="mobile_number"
         type="text"
@@ -166,8 +227,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.mobile_number}
         required
       />
-      <label htmlFor="reservation_date">Reservation Date:&nbsp;</label>
+
+      <label className="form-label" htmlFor="reservation_date">
+        Reservation Date:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="reservation_date"
         id="reservation_date"
         type="date"
@@ -175,8 +240,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.reservation_date}
         required
       />
-      <label htmlFor="reservation_time">Reservation Time:&nbsp;</label>
+
+      <label className="form-label" htmlFor="reservation_time">
+        Reservation Time:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="reservation_time"
         id="reservation_time"
         type="time"
@@ -184,8 +253,12 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.reservation_time}
         required
       />
-      <label htmlFor="people">Party Size:&nbsp;</label>
+
+      <label className="form-label" htmlFor="people">
+        Party Size:&nbsp;
+      </label>
       <input
+        className="form-control"
         name="people"
         id="people"
         type="number"
@@ -194,10 +267,19 @@ export default function NewReservation({ loadDashboard, edit, reservations }) {
         value={formData.people}
         required
       />
-      <button type="submit" onClick={handleSubmit}>
+
+      <button
+        className="btn btn-primary m-1"
+        type="submit"
+        onClick={handleSubmit}
+      >
         Submit
       </button>
-      <button type="button" onClick={history.goBack}>
+      <button
+        className="btn btn-danger m-1"
+        type="button"
+        onClick={history.goBack}
+      >
         Cancel
       </button>
     </form>
