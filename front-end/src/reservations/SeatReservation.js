@@ -4,7 +4,7 @@ import ErrorAlert from "../layout/ErrorAlert";
 import { listReservations, seatTable } from "../utils/api";
 
 /**
- * On this page, the user chooses a table to seat a reservation at.
+ * Allow user to choose table for reservation.
  */
 export default function SeatReservation({ tables, loadDashboard }) {
   const history = useHistory();
@@ -18,7 +18,7 @@ export default function SeatReservation({ tables, loadDashboard }) {
   const { reservation_id } = useParams();
 
   /**
-   * At first render, make an API call to get all reservations.
+   * Shows all current reservations on first render
    */
   useEffect(() => {
     const abortController = new AbortController();
@@ -35,14 +35,14 @@ export default function SeatReservation({ tables, loadDashboard }) {
   if (!tables || !reservations) return null;
 
   /**
-   * Whenever a user makes a change to the form, update the state.
+   * Update state when a user makes a change to the form.
    */
   function handleChange({ target }) {
     setTableId(target.value);
   }
 
   /**
-   * Whenever a user submits the form, validate and make the API call.
+   * Validate and make API call when a user submits the form.
    */
   function handleSubmit(event) {
     event.preventDefault();
@@ -59,7 +59,7 @@ export default function SeatReservation({ tables, loadDashboard }) {
   }
 
   /**
-   * Make sure the reservation can be seated at a particular table.
+   * Validate table is available for reservation.
    */
   function validateSeat() {
     const foundErrors = [];

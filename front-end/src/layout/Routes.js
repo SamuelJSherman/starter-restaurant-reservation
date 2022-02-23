@@ -26,7 +26,7 @@ function Routes() {
   useEffect(loadDashboard, [date]);
 
   /**
-   * Grabs all current reservations and tables from an API call.
+   * retrieves all current reservation and table data.
    */
   function loadDashboard() {
     const abortController = new AbortController();

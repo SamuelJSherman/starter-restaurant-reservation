@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { updateReservationStatus } from "../utils/api";
 
 /**
- * This represents a row of data representing a reservation for a <table>.
+ * This is reservation data for a <table>.
  */
 export default function ReservationRow({ reservation, loadDashboard }) {
   if (!reservation || reservation.status === "finished") return null;
 
   /**
-   * This function is called if the user wants to cancel a reservation.
+   * This function is used to cancel a reservation.
    */
   function handleCancel() {
     if (

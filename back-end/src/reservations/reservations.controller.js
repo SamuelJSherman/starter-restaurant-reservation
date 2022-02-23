@@ -2,7 +2,7 @@ const service = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 /**
- * List handler for reservation resources.
+ * List reservation handler.
  */
 async function list(req, res) {
   const date = req.query.date;
@@ -18,7 +18,7 @@ async function list(req, res) {
 }
 
 /**
- * Makes sure data object exists.
+ * Validate data object.
  */
 async function validateData(req, res, next) {
   if (!req.body.data) {
@@ -29,7 +29,7 @@ async function validateData(req, res, next) {
 }
 
 /**
- * Validates the body object to make sure all required information is correct.
+ * Validates correct information of the body object.
  */
 async function validateBody(req, res, next) {
   const requiredFields = [
@@ -199,7 +199,7 @@ async function validateUpdateBody(req, res, next) {
 }
 
 /**
- * Update a reservation's status.
+ * Update the status of a reservation.
  */
 async function update(req, res) {
   await service.update(
@@ -211,7 +211,7 @@ async function update(req, res) {
 }
 
 /**
- * Edit the data of a reservation.
+ * Edit reservation data.
  */
 async function edit(req, res) {
   const response = await service.edit(

@@ -22,7 +22,7 @@ async function validateData(req, res, next) {
 }
 
 /**
- * Validates the body object to make sure all required information is correct.
+ * Validates correct information of the body object.
  */
 async function validateBody(req, res, next) {
   if (!req.body.data.table_name || req.body.data.table_name === "") {
@@ -55,7 +55,7 @@ async function validateBody(req, res, next) {
 }
 
 /**
- * Create a table.
+ * Creates a table.
  */
 async function create(req, res) {
   if (req.body.data.reservation_id) {
@@ -126,7 +126,7 @@ async function validateSeat(req, res, next) {
 }
 
 /**
- * Seat a table.
+ * Seats a table.
  */
 async function update(req, res) {
   await service.occupy(
@@ -161,7 +161,7 @@ async function validateTableId(req, res, next) {
 }
 
 /**
- * Makes sure table is occupied before seating a table.
+ * Checks occupancy before seating a table.
  */
 async function validateSeatedTable(req, res, next) {
   if (res.locals.table.status !== "occupied") {

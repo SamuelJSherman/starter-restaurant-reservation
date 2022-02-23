@@ -15,7 +15,7 @@ export default function NewReservation({ loadDashboard, edit }) {
   const [errors, setErrors] = useState([]);
   const [apiError, setApiError] = useState(null);
   const [formData, setFormData] = useState({
-    // initial (default) data
+    // Set (default) data
     first_name: "",
     last_name: "",
     mobile_number: "",
@@ -71,7 +71,7 @@ export default function NewReservation({ loadDashboard, edit }) {
   }, [edit, reservation_id]);
 
   /**
-   * Whenever a user makes a change to the form, update the state.
+   * When a change is made to the form, update the state.
    */
   function handleChange({ target }) {
     setFormData({
@@ -82,7 +82,7 @@ export default function NewReservation({ loadDashboard, edit }) {
   }
 
   /**
-   * Whenever a user submits the form, validate and make the API call.
+   * When form is submitted, validate and make the API call.
    */
   function handleSubmit(event) {
     event.preventDefault();
@@ -114,7 +114,7 @@ export default function NewReservation({ loadDashboard, edit }) {
   }
 
   /**
-   * Make sure all fields exist and are filled in correctly.
+   * Validate fields exist and are filled in correctly.
    */
   function validateFields(foundErrors) {
     for (const field in formData) {
@@ -129,7 +129,7 @@ export default function NewReservation({ loadDashboard, edit }) {
   }
 
   /**
-   * Make sure the date and time of the reservation works with the restaurant's schedule.
+   * Make sure the date and time of the reservation don't conflict with the restaurant's schedule.
    */
   function validateDate(foundErrors) {
     const reserveDate = new Date(

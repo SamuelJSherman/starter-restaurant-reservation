@@ -2,13 +2,13 @@ import React from "react";
 import { finishTable } from "../utils/api";
 
 /**
- * This represents a row of data representing a table for a <table>.
+ * This is reservation data for a <table>.
  */
 export default function TableRow({ table, loadDashboard }) {
   if (!table) return null;
 
   /**
-   * Called when the user wants to finish a table that is currently seated.
+   * Called to finish a table
    */
   function handleFinish() {
     if (
