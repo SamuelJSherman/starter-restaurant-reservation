@@ -13,11 +13,7 @@ const tablesRouter = require("./tables/tables.router");
 
 const app = express();
 
-app.use(
-    cors({
-        origin: CLIENT_ORIGIN
-    })
-);
+app.use(cors());
 app.use(express.json());
 app.options('*', cors());
 
