@@ -12,6 +12,11 @@ const tablesRouter = require("./tables/tables.router");
 
 const app = express();
 
+app.get("/cors", (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.send({ msg: "This has CORS enabled 🎈" });
+});
+
 app.use(cors());
 app.use(express.json());
 
