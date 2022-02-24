@@ -1,7 +1,7 @@
 # Capstone: Restaurant Reservation System
 
 ## Live application URL
-`https://desolate-mesa-68043.herokuapp.com/dashboard`
+`https://rrfinal-capstone-front-end.herokuapp.com/dashboard`
 
 ## Technology Used
 ### Frontend
