@@ -3,7 +3,7 @@
  * The default values is overridden by the `API_BASE_URL` environment variable.
  */
 
-const API_BASE_URL = "https://ptfinal-capstone-back-end.herokuapp.com";
+const API_BASE_URL = "https://ptfinal-project-back-end-api.herokuapp.com";
 
 /**
  * Defines the default headers for these functions to work with `json-server`
