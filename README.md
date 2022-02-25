@@ -1,7 +1,7 @@
 # Capstone: Restaurant Reservation System
 
 ## Live application URL
-`https://rrfinal-capstone-front-end.herokuapp.com/dashboard`
+`https://starter-restaurant-reservation-front-end-rho.vercel.app/dashboard`
 
 ## Technology Used
 ### Frontend
