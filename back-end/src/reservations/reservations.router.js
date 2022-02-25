@@ -6,9 +6,7 @@
 const router = require("express").Router();
 const controller = require("./reservations.controller");
 const methodNotAllowed = require("../errors/methodNotAllowed");
-const cors = require("cors");
 
-router.use(cors());
 
 router
   .route("/:reservation_id/status")
@@ -23,7 +21,7 @@ router
 
 router
   .route("/")
-  .get(cors(), controller.list)
+  .get(controller.list)
   .post(controller.create)
   .all(methodNotAllowed);
   
