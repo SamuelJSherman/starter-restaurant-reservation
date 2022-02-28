@@ -25,6 +25,8 @@ Users can also create tables and assign capacity to reflect the tables in the re
 
 ## Installation Instructions
 
+NOTE: knex migrate:latest and knex seed:run should be run prior to tests.
+
 ### Frontend
 - `cd` into `Thinkful-Final-Capstone/front-end`
   - run `npm install`
