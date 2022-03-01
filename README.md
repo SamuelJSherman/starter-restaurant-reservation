@@ -33,6 +33,7 @@ Users can also create tables and assign capacity to reflect the tables in the re
 ### Backend
 - `cd` into `Thinkful-Final-Capstone/back-end`
   - run `npm install`
+  - run `knex migrate:latest` and `knex seed:run`
   - run `npm start` to start the application
 
 <br>
